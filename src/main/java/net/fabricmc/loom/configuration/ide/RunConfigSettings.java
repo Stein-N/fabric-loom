@@ -112,9 +112,15 @@ public class RunConfigSettings implements Named {
 	private Function<Project, SourceSet> source;
 
 	/**
-	 * The run directory for this configuration, relative to the root project directory.
+	 * The run directory for this configuration, relative to the projectDir.
+	 * The projectDir value is set to the root project directory by default.
 	 */
 	private String runDir;
+
+	/**
+	 * The project directory for this configuration, can differ from the root project directory.
+	 */
+	private String projectDir;
 
 	/**
 	 * The base name of the run configuration, which is the name it is created with, i.e. 'client'
@@ -151,6 +157,8 @@ public class RunConfigSettings implements Named {
 			final String sourceSetName = MinecraftSourceSets.get(p).getSourceSetForEnv(getEnvironment());
 			return SourceSetHelper.getSourceSetByName(sourceSetName, p);
 		});
+
+		projectDir = getProject().getProjectDir();
 
 		runDir("run");
 	}
@@ -226,6 +234,14 @@ public class RunConfigSettings implements Named {
 		this.runDir = runDir;
 	}
 
+	public String getProjectDir() {
+		return projectDir;
+	}
+
+	public void setProjectDir(String projectDir) {
+		this.projectDir = projectDir;
+	}
+ 
 	public SourceSet getSource(Project proj) {
 		return source.apply(proj);
 	}
@@ -365,7 +381,7 @@ public class RunConfigSettings implements Named {
 	}
 
 	public void makeRunDir() {
-		File file = new File(getProject().getProjectDir(), runDir);
+		File file = new File(projectDir, runDir);
 
 		if (!file.exists()) {
 			file.mkdir();
